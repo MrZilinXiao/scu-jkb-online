@@ -25,3 +25,11 @@ fork from <a href= "https://github.com/IanSmith123/ucas-covid19" > ucas-covid19 
 
 如果本项目对你有帮助，希望你能：
 
+（支付宝）
+
+![alipay](https://raw.githubusercontent.com/MrZilinXiao/scu-jkb-online/master/scujkbapp/static/alipay.jpg)
+
+（微信）
+
+![wechat](https://raw.githubusercontent.com/MrZilinXiao/scu-jkb-online/master/scujkbapp/static/wechat.jpg)
+
