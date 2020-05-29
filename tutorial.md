@@ -11,9 +11,9 @@ fork from <a href= "https://github.com/IanSmith123/ucas-covid19" > ucas-covid19 
 ## 使用教程
 0. 准备好四川大学微服务的登录凭据，这个凭据不同于登录四川大学教务处的凭据。（Tips: 你可以在四川大学微服务微信平台通过手机号码找回并验证你的凭据，错误的凭据将无法通过注册）
 
-1. （推荐,可选）在ServerChan(http://sc.ftqq.com/)登入你的Github账号，绑定微信，并获取你的SCKey。进行这一步后，每天的成功打卡将推送消息到你的微信。
+1. （推荐,可选）在ServerChan(http://sc.ftqq.com/ )登入你的Github账号，绑定微信，并获取你的SCKey。进行这一步后，每天的成功打卡将推送消息到你的微信。
 
-2. 用现代浏览器打开http://jkb.mrxiao.net/，注册你的账号。注意，注册的密码需要与微服务平台密码一致。
+2. 用现代浏览器打开http://jkb.mrxiao.net/ ，注册你的账号。注意，注册的密码需要与微服务平台密码一致。
 
 3. 仔细阅读主页内容，并可以通过测试按钮进行测试。
 
