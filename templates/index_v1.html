@@ -14,6 +14,7 @@
     <link href={% static "css/font-awesome.css" %} rel="stylesheet">
     <link href={% static "css/animate.css" %} rel="stylesheet">
     <link href={% static "css/style.css" %} rel="stylesheet">
+    <link href={% static "css/plugins/sweetalert/sweetalert.css" %} rel="stylesheet">
     <style>
         img {
             width: auto;
@@ -44,6 +45,15 @@
                                 </p>
                                 <p>打卡成功后手机端打卡按钮仍然处于可用状态，但尝试打卡时将提示今日已打卡。
                                 </p>
+                                <p>如果你的身体状况或所处位置发生变化，请立刻点击
+                                <div class="btn-group open">
+                                    <a class="btn btn-warning pull-left" id="close">删除账号信息</a>
+                                </div>
+                                <p>如果你需要测试打卡，并查看打卡的返回信息，请点击
+                                <div class="btn-group open">
+                                    <a class="btn btn-primary pull-left" id="test">测试打卡</a>
+                                </div>
+
                             </div>
                         </div>
 
@@ -63,6 +73,7 @@
                                 <div class="col-sm-3">
                                     <p align="center"><img src={% static "wechat.jpg" %} align="left" alt="" /></p>
                                 </div>
+
                                 {#                                <p class="m-t">如果这个项目给你带来了便利，希望你能：</p>#}
                                 {#                                <p align="center"><img src={% static "alipay.jpg" %} align="left" alt="" /></p>#}
                                 {#                                <p align="center"><img src={% static "wechat.jpg" %} align="left" alt="" /></p>#}
@@ -98,6 +109,7 @@
 <script src={% static "js/plugins/bootstrap-table/bootstrap-table.min.js" %}></script>
 <script src={% static "js/plugins/bootstrap-table/bootstrap-table-mobile.min.js" %}></script>
 <script src={% static "js/plugins/bootstrap-table/locale/bootstrap-table-zh-CN.min.js" %}></script>
+<script src={% static "js/plugins/sweetalert/sweetalert.min.js" %}></script>
 
 <!-- Flot -->
 <script src={% static "js/plugins/flot/jquery.flot.js" %}></script>
@@ -244,6 +256,64 @@
     $("#btn-query").on("click", function () {
         /** * 查询 */
         refresh();
+    });
+</script>
+
+<script>
+    $('#test').click(function () {
+        $.ajax({
+            url: '{% url "test" %}',
+            type: 'get',
+            success: function (data) {
+                if (data.status === 200) {
+                    var title = data.title;
+                    var content = data.submit_info;
+
+                    swal({
+                            title: title,
+                            html: true,
+                            text: content,
+                            showConfirmButton: true,
+                            showCancelButton: false,
+                            confirmButtonText:
+                                '确认',
+                            closeOnConfirm: false,
+                            showLoaderOnConfirm: true
+                        },
+                    )
+                } else{
+                    $('.has-error').html(data.msg)
+                }
+            }
+        })
+    })
+</script>
+
+<script>
+    $('#close').click(function () {
+        swal({
+            title: "您确定要删除账号吗",
+            text: "删除后将无法恢复，请谨慎操作！",
+            type: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#DD6B55",
+            confirmButtonText: "是的，我要删除！",
+            cancelButtonText: "让我再考虑一下…",
+            closeOnConfirm: false,
+            closeOnCancel: false,
+            showLoaderOnConfirm: true
+        }, function (isConfirm) {
+            var postSomthing = '';
+            if (isConfirm) {
+                $.get("{% url 'delete' %}", postSomthing, function (data) {
+                    swal({title: "删除成功！", text: "您的账号已删除，刷新页面后生效", type: "success"}, function () {
+                        location.replace('{% url 'index' %}');
+                    })
+                });
+            } else {
+                swal({title: "已取消", text: "您取消了删除操作！", type: "error"});
+            }
+        });
     });
 </script>
 </body>

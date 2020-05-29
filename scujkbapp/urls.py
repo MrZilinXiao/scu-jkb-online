@@ -13,6 +13,8 @@ urlpatterns = [
     url(r'^checkUsername', views.checkUsername, name="checkUsername"),
     url(r'^inner_index/$', views.inner_index, name='inner_index'),
     url(r'^getRecordList$', views.getRecordList, name="getRecordList"),
+    url(r'^test$', views.test, name="test"),
+    url(r'^delete$', views.delete, name="delete"),
 
 ]
 

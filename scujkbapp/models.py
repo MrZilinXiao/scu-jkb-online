@@ -16,7 +16,7 @@ class UserProfile(models.Model):
 
 
 class Record(models.Model):
-    user = models.ForeignKey(UserProfile, on_delete=models.DO_NOTHING, related_name='Record')
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='Record')
     addTime = models.DateTimeField('时间', auto_now_add=True)
     title = models.CharField('标题', max_length=512, default='')
     content = models.CharField('返回信息', max_length=512, default='')

@@ -89,17 +89,18 @@ class jkbSession:
         # print(r.text)
         result = r.json()
 
-        new_daily = json.dumps(new_daily).decode('unicode-escape').encode('utf-8')
+        new_daily = json.dumps(new_daily, ensure_ascii=False)
         if result.get('m') == "操作成功":
             print("打卡成功")
             self.message(result.get('m'), new_daily)
         else:
             print("打卡失败，错误信息: ", r.json().get("m"))
             self.message(result.get('m'), new_daily)
-            raise Exception('10003', result.get('m'))
+            raise jkbException('10003', result.get('m'))
+        return result.get('m'), new_daily
 
     def message(self, title, body):
-        userprofile = UserProfile.objects.get(stu_id=self.username, default=None)
+        userprofile = UserProfile.objects.get(stu_id=self.username)
         record = Record(user=userprofile, title=title, content=body)
         record.save()
         if self.SCKey:

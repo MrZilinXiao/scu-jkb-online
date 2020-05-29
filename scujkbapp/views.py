@@ -2,7 +2,7 @@ import datetime
 import random
 import string
 import time
-import scujkbapp.jkb as jkb
+from scujkbapp.jkb import jkbSession, jkbException
 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -102,8 +102,8 @@ def register(request):
                     else:
                         # 检查统一平台密码
                         try:
-                            auth = jkb.jkbSession(username, password)
-                        except jkb.jkbException as e:
+                            auth = jkbSession(username, password)
+                        except jkbException as e:
                             errormsg = str(e)
                             return render(request, 'register.html', locals())
                         try:
@@ -122,7 +122,7 @@ def register(request):
                         invitation_list.save()
 
                         user = User.objects.create_user(username=username, password=password)
-                        userProfile = UserProfile(user=user, stu_pass=password)
+                        userProfile = UserProfile(user=user, stu_pass=password, stu_id=username, SCKey=SCKey)
                         userProfile.save()
                         user.backend = 'django.contrib.auth.backends.ModelBackend'
                         login(request, user)
@@ -191,3 +191,41 @@ def getRecordList(request):
             return JsonResponse({'total': total, 'rows': page_record})  # 一点骚操作，异步前端操作真的不熟
         except Exception as e:
             raise e
+
+
+@login_required
+def test(request):
+    userprofile = UserProfile.objects.get(stu_id=request.user.username)
+    try:
+        jkb = jkbSession(userprofile.stu_id, userprofile.stu_pass, userprofile.SCKey)
+        old = jkb.get_daily()
+        title, submit_info = jkb.submit(old)
+        return JsonResponse({
+            'status': 200,
+            'title': title,
+            'submit_info': str(submit_info)
+        })
+
+    except jkbException as e:
+        if e.code == '10001':
+            userprofile.vaild = False
+            userprofile.save()
+            jkbSession.wechat_message(userprofile.SCKey, '密码错误', '您在统一认证平台的密码已更改，请登录平台重新修改密码为当前密码')
+        if e.code == '10002':
+            jkb.message('昨日信息获取错误', '昨日信息获取错误')
+        if e.code == '10003':
+            jkb.message('打卡失败', str(e))
+        return JsonResponse({
+            'status': 200,
+            'title': '打卡失败',
+            'submit_info': str(e)
+        })
+
+@login_required
+def delete(request):
+    userprofile = UserProfile.objects.get(stu_id=request.user.username)
+    user = User.objects.get(username=request.user.username)
+    userprofile.delete()
+    user.delete()
+    logout(request)
+    return redirect('index')
