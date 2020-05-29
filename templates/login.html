@@ -1,0 +1,74 @@
+{% load static %}<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>SCU-JKB-Online - 登录</title>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+
+    <link rel="shortcut icon" href="favicon.ico"> <link href={% static "css/bootstrap.min.css"%} rel="stylesheet">
+    <link href={% static "css/font-awesome.css" %} rel="stylesheet">
+    <link href={% static "css/animate.css"%} rel="stylesheet">
+    <link href={% static "css/style.css"%} rel="stylesheet">
+    <!--[if lt IE 9]>
+    <meta http-equiv="refresh" content="0;ie.html" />
+    <![endif]-->
+    <script>if(window.top !== window.self){ window.top.location = window.location;}</script>
+</head>
+
+<body class="gray-bg">
+
+    <div class="middle-box text-center loginscreen  animated fadeInDown">
+        <div>
+            <div>
+
+                <h1 class="logo-name">h</h1>
+
+            </div>
+            <h3>欢迎使用 SCU健康报</h3>
+
+            <form class="m-t" role="form" action="{% url "login" %}" method='POST'>
+                {% csrf_token %}
+                {% if errormsg %}
+                <span style='color:red;'>{{ errormsg }}</span>
+                {%  endif %}
+                {% if form.non_field_errors %}
+                {% for item in form.non_field_errors %}
+                    <span style='color:red;'>{{ item }}</span>
+                {% endfor %}
+                {% endif %}
+                <div class="form-group">
+                    {{ form.userName }}
+                </div>
+                <div class="form-group">
+                    {{ form.password }}
+                </div>
+                <div class="form-group">
+                    {{ form.captcha }}
+                    <img src="{% url "check_captcha" %}" onclick="ChangeCode(this);" title='点击换一张'/>
+                        <script>
+                        function ChangeCode(ths){ths.src = ths.src + '?'; }
+                        </script>
+                </div>
+                <button type="submit" class="btn btn-primary block full-width m-b">登 录</button>
+
+                <p class="text-muted text-center"><a href="{% url "register" %}">注册一个新账号</a>
+                </p>
+
+            </form>
+        </div>
+    </div>
+
+    <!-- 全局js -->
+    <script src={% static "js/jquery.min.js"%}></script>
+    <script src={% static "js/bootstrap.min.js"%}></script>
+
+    
+
+</body>
+
+</html>
