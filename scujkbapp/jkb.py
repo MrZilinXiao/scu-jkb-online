@@ -88,14 +88,24 @@ class jkbSession:
         print("提交信息: ", new_daily)
         # print(r.text)
         result = r.json()
+        try:
+            new_daily['geo_api_info'] = new_daily['geo_api_info'].replace(r'\\', '\\').encode().decode('unicode_escape').replace('\\', '')
+            new_daily['geo_api_infot'] = new_daily['geo_api_infot'].replace(r'\\', '\\').encode().decode('unicode_escape').replace('\\', '')
+            new_daily['old_city'] = new_daily['old_city'].replace(r'\\', '\\').encode().decode(
+                'unicode_escape').replace('\\', '')
+        except:
+            print("KeyError")
+            pass
 
         new_daily = json.dumps(new_daily, ensure_ascii=False)
+        print("显示信息：" + new_daily)
+
         if result.get('m') == "操作成功":
             print("打卡成功")
-            self.message(result.get('m'), new_daily)
+            self.message("打卡成功", "服务器返回：" + new_daily)
         else:
             print("打卡失败，错误信息: ", r.json().get("m"))
-            self.message(result.get('m'), new_daily)
+            # self.message(result.get('m'), new_daily)
             raise jkbException('10003', result.get('m'))
         return result.get('m'), new_daily
 
@@ -111,4 +121,3 @@ class jkbSession:
         if key:
             msg_url = "https://sc.ftqq.com/{}.send?text={}&desp={}".format(key, title, body)
             requests.get(msg_url)
-
