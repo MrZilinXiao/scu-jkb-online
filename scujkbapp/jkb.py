@@ -70,12 +70,15 @@ class jkbSession:
             'sfjchbry': old['sfjchbry'],  # 是否接触湖北人员
             'sfjcbh': old['sfjcbh'],  # 是否接触病患 ？疑似/确诊人群
             'sfcyglq': old['sfcyglq'],  # 是否处于隔离期？
-            "sfjxhsjc": old['sfjxhsjc'],  # 是否进行核酸检查
+            "sfjxhsjc": old['sfjxhsjc'],  # 是否进行核酸检查 1
+            'hsjcjg': old['hsjcjg'],  # 核酸检测结果 2
+            "hsjcrq": "2020-09-11",
+            "hsjcdd": "四川大学华西医院",
+            "szxqmc": "江安校区",
             'sfcxzysx': old['sfcxzysx'],  # 是否出现值得注意的情况？
             'szsqsfybl': old['szsqsfybl'],
             'sfsqhzjkk': old['sfsqhzjkk'],
             'sfygtjzzfj': old['sfygtjzzfj'],
-            'hsjcjg': old['hsjcjg'],
             'old_szdd': old['old_szdd'],  # 所在地点
             'sfsfbh': old['sfsfbh'],  # 是否？？病患
             'geo_api_info': old['old_city'],
