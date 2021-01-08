@@ -1,8 +1,6 @@
 import datetime
-import random
-import string
 import time
-from scujkbapp.jkb import jkbSession, jkbException
+from scujkbapp.jkb import jkbSession, jkbException, single_check_in
 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -80,6 +78,11 @@ def check_captcha(request):
     return HttpResponse(stream.getvalue())
 
 
+def check_bind(request):
+    userprofile = UserProfile.objects.get(stu_id=request.user.username)
+    return HttpResponse("0") if userprofile.wx_uid == '' else HttpResponse("1")
+
+
 def register(request):
     if request.method == 'GET':
         form = RegForm()
@@ -93,16 +96,17 @@ def register(request):
             if form.is_valid():
                 username = form.cleaned_data['userName']
                 password = form.cleaned_data['password']
-                SCKey = form.cleaned_data['SCKey']
+                # SCKey = form.cleaned_data['SCKey']
                 invitation = form.cleaned_data['invitation_key']
                 captcha = form.cleaned_data['captcha']
-                if username != '' and password != '' and captcha == request.session['CheckCode'].lower():
+                if username != '' and password != '' and captcha.lower() == request.session['CheckCode'].lower():
                     if User.objects.filter(username=username).exists():
                         errormsg = '学号已存在，如果您忘记了密码，请联系管理员'
                     else:
                         # 检查统一平台密码
                         try:
                             auth = jkbSession(username, password)
+                            auth.login()
                         except jkbException as e:
                             errormsg = str(e)
                             return render(request, 'register.html', locals())
@@ -122,7 +126,7 @@ def register(request):
                         invitation_list.save()
 
                         user = User.objects.create_user(username=username, password=password)
-                        userProfile = UserProfile(user=user, stu_pass=password, stu_id=username, SCKey=SCKey)
+                        userProfile = UserProfile(user=user, stu_pass=password, stu_id=username)
                         userProfile.save()
                         user.backend = 'django.contrib.auth.backends.ModelBackend'
                         login(request, user)
@@ -155,6 +159,7 @@ def checkUsername(request):
 
 def inner_index(request):
     if request.user.is_authenticated:
+        userprofile = UserProfile.objects.get(stu_id=request.user.username)
         return render(request, 'index_v1.html', locals())
     else:
         return redirect('login')
@@ -196,30 +201,13 @@ def getRecordList(request):
 @login_required
 def test(request):
     userprofile = UserProfile.objects.get(stu_id=request.user.username)
-    try:
-        jkb = jkbSession(userprofile.stu_id, userprofile.stu_pass, userprofile.SCKey)
-        old = jkb.get_daily()
-        title, submit_info = jkb.submit(old)
-        return JsonResponse({
-            'status': 200,
-            'title': title,
-            'submit_info': str(submit_info)
-        })
+    title, submit_info = single_check_in(userprofile)
+    return JsonResponse({
+        'status': 200,
+        'title': title,
+        'submit_info': str(submit_info)
+    })
 
-    except jkbException as e:
-        if e.code == '10001':
-            userprofile.vaild = False
-            userprofile.save()
-            jkbSession.wechat_message(userprofile.SCKey, '密码错误', '您在统一认证平台的密码已更改，请登录平台重新修改密码为当前密码')
-        if e.code == '10002':
-            jkb.message('昨日信息获取错误', '昨日信息获取错误')
-        if e.code == '10003':
-            jkb.message('打卡失败', str(e))
-        return JsonResponse({
-            'status': 200,
-            'title': '打卡失败',
-            'submit_info': str(e)
-        })
 
 @login_required
 def delete(request):
@@ -229,3 +217,13 @@ def delete(request):
     user.delete()
     logout(request)
     return redirect('index')
+
+
+@login_required
+def adjust(request):
+    userprofile = UserProfile.objects.get(stu_id=request.user.username)
+    if userprofile.wx_uid == '':
+        return HttpResponse("未绑定微信，无法调整账号状态")
+    userprofile.valid = not userprofile.valid
+    userprofile.save()
+    return HttpResponse("1")

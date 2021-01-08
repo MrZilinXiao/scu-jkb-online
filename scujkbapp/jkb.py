@@ -5,12 +5,33 @@ import pytz
 import requests
 
 from scujkbapp.models import Record, UserProfile
+from scujkbapp.config import CONFIG, PROMPT
+from wxpusher import WxPusher
 
-header = {"User-Agent": "Mozilla/5.0 (Linux; Android 10;"
-                        "  AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 "
-                        "Chrome/66.0.3359.126 MQQBrowser/6.2 TBS/045136 Mobile "
-                        "Safari/537.36 wxwork/3.0.16 MicroMessenger/7.0.1 "
-                        "NetType/WIFI Language/zh", }
+header = CONFIG.HEADER
+
+
+def single_check_in(user: UserProfile):
+    jkb = jkbSession(user.stu_id, user.stu_pass, user.wx_uid)  # login here
+    try:
+        jkb.login()
+        old = jkb.get_daily()
+        return jkb.submit(old)
+
+    except jkbException as e:
+        if e.code == '10001':
+            user.vaild = False
+            user.save()
+            jkb.message(PROMPT.WRONG_PASS_TITLE, PROMPT.WRONG_PASS_BODY)
+            return PROMPT.WRONG_PASS_TITLE, PROMPT.WRONG_PASS_BODY
+        elif e.code == '10002':
+            jkb.message(PROMPT.WRONG_YESTERDAY_INFO, PROMPT.WRONG_YESTERDAY_INFO)
+            return PROMPT.WRONG_YESTERDAY_INFO, PROMPT.WRONG_YESTERDAY_INFO
+        elif e.code == '10003':
+            jkb.message(PROMPT.FAIL_CHECKIN, str(e))
+            return PROMPT.FAIL_CHECKIN, str(e)
+        else:
+            raise NotImplementedError
 
 
 class jkbException(Exception):
@@ -31,24 +52,24 @@ class jkbException(Exception):
 
 
 class jkbSession:
-    def __init__(self, username, passwd, SCKey=''):
+    def __init__(self, username, passwd, wx_uid=None):
         self.s = requests.Session()
         self.s.headers.update(header)
-        self.SCKey = None
+        self.wx_uid = wx_uid
         self.username = username
+        self.passwd = passwd
+
+    def login(self):
         payload = {
-            "username": username,
-            "password": passwd
+            "username": self.username,
+            "password": self.passwd
         }
         r = self.s.post("https://wfw.scu.edu.cn/a_scu/api/sso/check", data=payload)
         if not r.json().get('m') == "操作成功":
             raise jkbException('10001')
-        if SCKey:
-            self.SCKey = SCKey
 
     def get_daily(self):
         daily = self.s.get("https://wfw.scu.edu.cn/ncov/api/default/daily?xgh=0&app_id=scu")
-        # info = s.get("https://app.ucas.ac.cn/ncov/api/default/index?xgh=0&app_id=ucas")
         j = daily.json()
         d = j.get('d', None)
         if d:
@@ -88,7 +109,7 @@ class jkbSession:
             'app_id': 'scu'
         }
         r = self.s.post("https://wfw.scu.edu.cn/ncov/api/default/save", data=new_daily)
-        print("提交信息: ", new_daily)
+        # print("提交信息: ", new_daily)
         # print(r.text)
         result = r.json()
         try:
@@ -116,11 +137,17 @@ class jkbSession:
         userprofile = UserProfile.objects.get(stu_id=self.username)
         record = Record(user=userprofile, title=title, content=body)
         record.save()
-        if self.SCKey:
-            self.wechat_message(self.SCKey, title, body)
+        if self.wx_uid:
+            self.wx_message(self.wx_uid, title, body)
+        # if self.SCKey:
+        #     self.wechat_message(self.SCKey, title, body)
 
     @staticmethod
-    def wechat_message(key, title, body):
-        if key:
-            msg_url = "https://sc.ftqq.com/{}.send?text={}&desp={}".format(key, title, body)
-            requests.get(msg_url)
+    def wx_message(wx_uid, title, body):
+        WxPusher.send_message(content=' '.join([title, body]), uids=[wx_uid], url='https://jkb.mrxiao.net/')
+
+    # @staticmethod
+    # def wechat_message(key, title, body):
+    #     if key:
+    #         msg_url = "https://sc.ftqq.com/{}.send?text={}&desp={}".format(key, title, body)
+    #         requests.get(msg_url)

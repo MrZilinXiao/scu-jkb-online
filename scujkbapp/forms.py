@@ -30,9 +30,9 @@ class RegForm(forms.Form):
                                   widget=forms.TextInput(attrs={'class': 'form-control',
                                                                 'placeholder': '学号',
                                                                 'autofocus': ''}))
-    SCKey = forms.CharField(label='SCKey', required=False, max_length=256,
-                            widget=forms.TextInput(attrs={'class': 'form-control',
-                                                          'placeholder': 'SCKey（选填）'}))
+    # SCKey = forms.CharField(label='SCKey', required=False, max_length=256,
+    #                         widget=forms.TextInput(attrs={'class': 'form-control',
+    #                                                       'placeholder': 'SCKey（选填）'}))
     password = forms.CharField(label='Password', min_length=6, max_length=256,
                                widget=forms.PasswordInput(attrs={'class': 'form-control',
                                                                  'placeholder': '四川大学统一认证密码'}))

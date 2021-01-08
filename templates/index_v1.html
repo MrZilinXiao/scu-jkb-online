@@ -41,13 +41,15 @@
                                 <p class="m-t">当你看到这个页面时，你已经成功完成了所有步骤。</p>
                                 <p>在每天上午8点3分左右，你的打卡信息将提交到四川大学微服务。
                                 </p>
-                                <p>如果你注册时填写了SCKey，打卡成功后将推送一条消息到你的微信。
+                                <p>完成每日打卡后，注册时绑定的微信将收到WxPusher的通知，同时有关平台的其他通知也会通过微信下发。
                                 </p>
                                 <p>打卡成功后手机端打卡按钮仍然处于可用状态，但尝试打卡时将提示今日已打卡。
                                 </p>
-                                <p>如果你的身体状况或所处位置发生变化，请立刻点击
+                                <p>如果你的身体状况或所处位置发生变化，可以通过此按钮调整打卡状态：
                                 <div class="btn-group open">
-                                    <a class="btn btn-warning pull-left" id="close">删除账号信息</a>
+                                    <a class="btn btn-info pull-left" id="adjust">当前打卡状态：{% if userprofile.vaild %}
+                                        启用{% else %}停用{% endif %} 点击{% if userprofile.vaild %}停用{% else %}启用{% endif %}
+                                        打卡</a>
                                 </div>
                                 <p>如果你需要测试打卡，并查看打卡的返回信息，请点击
                                 <div class="btn-group open">
@@ -71,7 +73,7 @@
                                     <p align="center"><img src={% static "alipay.jpg" %} align="left" alt=""/></p>
                                 </div>
                                 <div class="col-sm-3">
-                                    <p align="center"><img src={% static "wechat.jpg" %} align="left" alt="" /></p>
+                                    <p align="center"><img src={% static "wechat.jpg" %} align="left" alt=""/></p>
                                 </div>
 
                                 {#                                <p class="m-t">如果这个项目给你带来了便利，希望你能：</p>#}
@@ -118,6 +120,71 @@
 <script src={% static "js/plugins/flot/jquery.flot.pie.js" %}></script>
 <!-- 自定义js -->
 <script src={% static "js/content.js" %}></script>
+
+<script>
+    var is_wechat_bind = {% if userprofile.wx_uid == '' %}false{% else %}true{% endif %};
+    if (!is_wechat_bind) {
+        var int = self.setInterval(function () {
+            bind_status()
+        }, 1000);
+
+        function bind_status() {
+            $.ajax({
+                url: '{% url 'check_bind' %}',
+                type: 'get',
+                data: {},
+                success: function (data) {
+                    if (data === '1') {
+                        window.clearInterval(int); //销毁定时器
+                        swal(
+                            '绑定成功',
+                            '平台打卡已启用，烦请阅读以下须知！',
+                            'success'
+                        )
+                    }
+                },
+                error: function () {
+                    window.clearInterval(int);
+                    swal(
+                        '请求出错',
+                        '请重新提交订单！',
+                        'error'
+                    );
+                },
+
+            });
+        }
+
+        $.ajax({
+            url: '{% url "wxpusher_qrcode" %}',
+            dataType: 'json',
+            type: 'get',
+            data: {},
+            success: function (data) {
+                if (data.code === 1000) {
+                    var qr_link = data.data.url;
+                    swal({
+                        title: '绑定微信',
+                        html: true,
+                        text: '为了给您提供稳定的打卡服务，您需要扫码绑定微信，否则无法启用打卡服务' +
+                            '<div><img src="' + qr_link + '" /></div>',
+                        showConfirmButton: false,
+                        showCancelButton: false,
+                        showLoaderOnConfirm: true
+                    })
+                } else {
+                    swal({
+                        title: '微信服务异常',
+                        text: data,
+                        showConfirmButton: false,
+                        showCancelButton: false,
+                        showLoaderOnConfirm: true
+                    })
+                }
+            }
+        })
+    }
+</script>
 
 <script>
     var $table = $('#data-table');
@@ -281,7 +348,7 @@
                             showLoaderOnConfirm: true
                         },
                     )
-                } else{
+                } else {
                     $('.has-error').html(data.msg)
                 }
             }
@@ -290,31 +357,19 @@
 </script>
 
 <script>
-    $('#close').click(function () {
-        swal({
-            title: "您确定要删除账号吗",
-            text: "删除后将无法恢复，请谨慎操作！",
-            type: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#DD6B55",
-            confirmButtonText: "是的，我要删除！",
-            cancelButtonText: "让我再考虑一下…",
-            closeOnConfirm: false,
-            closeOnCancel: false,
-            showLoaderOnConfirm: true
-        }, function (isConfirm) {
-            var postSomthing = '';
-            if (isConfirm) {
-                $.get("{% url 'delete' %}", postSomthing, function (data) {
-                    swal({title: "删除成功！", text: "您的账号已删除，刷新页面后生效", type: "success"}, function () {
-                        location.replace('{% url 'index' %}');
-                    })
-                });
+    $('#adjust').click(function () {
+        $.get("{% url 'adjust' %}", function (data) {
+            if (data === '1') {
+                swal({title: "状态调整成功！", text: "页面刷新后生效", type: "success"}, function () {
+                    location.replace('{% url 'inner_index' %}');
+                })
             } else {
-                swal({title: "已取消", text: "您取消了删除操作！", type: "error"});
+                swal({title: "状态调整失败", text: data, type: "warning"}, function () {
+
+                })
             }
         });
-    });
+    })
 </script>
 </body>
 
