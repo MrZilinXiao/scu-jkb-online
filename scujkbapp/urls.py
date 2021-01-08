@@ -1,5 +1,6 @@
 from . import views
 from django.conf.urls import url
+from django.urls import path
 from scujkbapp.wxpusher import WxPusherCallback, WxPusherQRCode
 
 urlpatterns = [
@@ -18,7 +19,8 @@ urlpatterns = [
     url(r'^delete$', views.delete, name="delete"),
     url(r'^adjust$', views.adjust, name="adjust"),
     url(r'^wxpusher', WxPusherCallback.as_view(), name='wxpusher'),
-    url(r'^get_wx_qrcode', WxPusherQRCode.as_view(), name='wxpusher_qrcode')
+    url(r'^get_wx_qrcode', WxPusherQRCode.as_view(), name='wxpusher_qrcode'),
+    path(r'key/<str:userkey>', views.key_login, name='key_login')
 ]
 
 handler404 = views.page_not_found

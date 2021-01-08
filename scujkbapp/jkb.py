@@ -1,8 +1,10 @@
+import hashlib
 import json
 from datetime import datetime
 
 import pytz
 import requests
+import time
 
 from scujkbapp.models import Record, UserProfile
 from scujkbapp.config import CONFIG, PROMPT
@@ -126,7 +128,7 @@ class jkbSession:
 
         if result.get('m') == "操作成功":
             print("打卡成功")
-            self.message("打卡成功", "服务器返回：" + new_daily)
+            self.message("打卡成功", "服务器返回：" + new_daily + "\n 如果因地理位置变化需要暂停打卡，请点击此消息下方的链接登录平台进行相关操作。")
         else:
             print("打卡失败，错误信息: ", r.json().get("m"))
             # self.message(result.get('m'), new_daily)
@@ -137,14 +139,19 @@ class jkbSession:
         userprofile = UserProfile.objects.get(stu_id=self.username)
         record = Record(user=userprofile, title=title, content=body)
         record.save()
+        uuid_name = userprofile.stu_id + userprofile.stu_pass + str(int(time.time()))
+        login_key = hashlib.sha224(uuid_name.encode('utf-8')).hexdigest()
+        userprofile.login_key = login_key
+        userprofile.save()
+
         if self.wx_uid:
-            self.wx_message(self.wx_uid, title, body)
+            self.wx_message(self.wx_uid, title, body, url='https://jkb.mrxiao.net/key/' + login_key)
         # if self.SCKey:
         #     self.wechat_message(self.SCKey, title, body)
 
     @staticmethod
-    def wx_message(wx_uid, title, body):
-        WxPusher.send_message(content=' '.join([title, body]), uids=[wx_uid], url='https://jkb.mrxiao.net/')
+    def wx_message(wx_uid, title, body, url='https://jkb.mrxiao.net/'):
+        WxPusher.send_message(content=' '.join([title, body]), uids=[wx_uid], url=url)
 
     # @staticmethod
     # def wechat_message(key, title, body):

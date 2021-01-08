@@ -227,3 +227,15 @@ def adjust(request):
     userprofile.valid = not userprofile.valid
     userprofile.save()
     return HttpResponse("1")
+
+
+def key_login(request, userkey):
+    if request.user.is_authenticated:
+        return redirect(request.META.get('HTTP_REFERER', '/'))
+    userprofiles = UserProfile.objects.filter(login_key=userkey)
+    if len(userprofiles) != 1:
+        return render(request, '500.html', status=500)
+    else:
+        login(request, userprofiles[0].user)
+        return redirect('index')
+    
