@@ -48,7 +48,8 @@
                                 <p>如果你的身体状况或所处位置发生变化，可以通过此按钮调整打卡状态：
                                 <div class="btn-group open">
                                     <a class="btn btn-info pull-left" id="adjust">当前打卡状态：{% if userprofile.valid %}
-                                        启用{% else %}停用{% endif %} 点击{% if userprofile.valid %}停用{% else %}启用{% endif %}打卡</a>
+                                        启用{% else %}停用{% endif %} 点击{% if userprofile.valid %}停用{% else %}启用{% endif %}
+                                        打卡</a>
                                 </div>
                                 <p>如果你需要测试打卡，并查看打卡的返回信息，请点击
                                 <div class="btn-group open">
@@ -135,13 +136,9 @@
                 success: function (data) {
                     if (data === '1') {
                         window.clearInterval(int); //销毁定时器
-                        swal(
-                            '绑定成功',
-                            '平台打卡已启用，烦请阅读以下须知！',
-                            'success', function () {
-                                location.replace('{% url 'inner_index' %}');
-                            }
-                        )
+                        swal({title: "绑定成功", text: "平台打卡已启用，烦请阅读主页左侧须知！", type: "success"}, function () {
+                            location.replace('{% url 'inner_index' %}');
+                        })
                     }
                 },
                 error: function () {

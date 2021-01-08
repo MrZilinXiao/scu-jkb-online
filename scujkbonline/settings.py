@@ -143,8 +143,7 @@ STATICFILES_FINDERS = (
 )
 
 CRONJOBS = [
-    ('29 3 8 * * * *', 'scujkbapp.cron.cronJob'),
-    ('* * * * * * *', 'scujkbapp.cron.testCron')
+    ('3 8 * * *', 'scujkbapp.cron.cronJob'),
 ]
 
 X_FRAME_OPTIONS = 'SAMEORIGIN'
