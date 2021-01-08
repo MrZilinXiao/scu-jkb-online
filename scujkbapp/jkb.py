@@ -20,7 +20,7 @@ def single_check_in(user: UserProfile):
 
     except jkbException as e:
         if e.code == '10001':
-            user.vaild = False
+            user.valid = False
             user.save()
             jkb.message(PROMPT.WRONG_PASS_TITLE, PROMPT.WRONG_PASS_BODY)
             return PROMPT.WRONG_PASS_TITLE, PROMPT.WRONG_PASS_BODY

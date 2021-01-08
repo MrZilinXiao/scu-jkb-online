@@ -81,6 +81,19 @@ DATABASES = {
     }
 }
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         # 'ENGINE': 'SCUKiller.mysql',   # 数据库引擎
+#         'NAME': 'scujkb',  # 数据库名，先前创建的
+#         'USER': 'scujkb',  # 用户名，可以自己创建用户
+#         'PASSWORD': 'ZZ2rDKYh58hCmk7m',  # 密码
+#         'HOST': '127.0.0.1',  # mysql服务所在的主机ip DockerChange
+#         'PORT': '3306',  # mysql服务端口
+#         'CONN_MAX_AGE': 60
+#     }
+# }
+
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
 

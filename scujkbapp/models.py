@@ -10,7 +10,7 @@ class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='UserProfile', unique=True)
     SCKey = models.CharField('SCKey', max_length=128, default='')
     wx_uid = models.CharField('微信UID', max_length=128, default='')
-    vaild = models.BooleanField('是否有效', default=False)
+    valid = models.BooleanField('是否有效', default=False)
 
     class Meta:
         verbose_name = '个人信息'

@@ -16,7 +16,7 @@ from wxpusher import WxPusher
 #         jkb.submit(old)
 #     except jkbException as e:
 #         if e.code == '10001':
-#             user.vaild = False
+#             user.valid = False
 #             user.save()
 #             jkbSession.wechat_message(user.SCKey, '密码错误', '您在统一认证平台的密码已更改，请登录平台重新修改密码为当前密码')
 #         if e.code == '10002':

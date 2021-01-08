@@ -35,6 +35,7 @@ class WxPusherCallback(View):
             uid, user_param = data['uid'], data['extra']
             user_profile = UserProfile.objects.get(stu_id=user_param)  # raise DoesNotExist if with no luck
             user_profile.wx_uid = uid
+            user_profile.valid = True
             user_profile.save()
 
         else:
