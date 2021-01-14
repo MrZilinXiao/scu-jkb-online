@@ -38,6 +38,8 @@ class WxPusherCallback(View):
             user_profile.valid = True
             user_profile.save()
 
+            WxPusher.send_message("SCU健康报绑定成功，请继续在平台上进行相关操作，并阅读使用说明。", uids=[uid])
+
         else:
             raise NotImplementedError
 

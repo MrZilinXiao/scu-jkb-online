@@ -11,7 +11,7 @@ class UserProfile(models.Model):
     SCKey = models.CharField('SCKey', max_length=128, default='')
     wx_uid = models.CharField('微信UID', max_length=128, default='')
     valid = models.BooleanField('是否有效', default=False)
-    login_key = models.CharField('登录密匙', max_length=128, default='', unique=True)
+    login_key = models.CharField('登录密匙', null=True, unique=True)
 
     class Meta:
         verbose_name = '个人信息'

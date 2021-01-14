@@ -128,7 +128,7 @@ class jkbSession:
 
         if result.get('m') == "操作成功":
             print("打卡成功")
-            self.message("打卡成功", "服务器返回：" + new_daily + "\n 如果因地理位置变化需要暂停打卡，请点击此消息下方的链接登录平台进行相关操作。")
+            self.message("打卡成功", "如果因地理位置变化等原因需要暂停打卡，请点击下面的“点击查看链接”一键登录平台进行相关操作，服务器返回信息：" + new_daily)
         else:
             print("打卡失败，错误信息: ", r.json().get("m"))
             # self.message(result.get('m'), new_daily)

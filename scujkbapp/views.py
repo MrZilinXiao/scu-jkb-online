@@ -12,6 +12,8 @@ from django.shortcuts import render, redirect
 from scujkbapp.forms import LoginForm, RegForm
 from scujkbapp.models import UserProfile, Invitation, Record
 
+from ratelimit.decorators import ratelimit
+
 
 def page_not_found(request, exception):
     return render(request, '404.html', status=404)
@@ -31,6 +33,7 @@ def index(request):
         return redirect('login')
 
 
+@ratelimit(key='ip', rate='5/m', block=True)
 def logIn(request):
     if request.user.is_authenticated:
         return redirect(request.META.get('HTTP_REFERER', '/'))
@@ -238,4 +241,3 @@ def key_login(request, userkey):
     else:
         login(request, userprofiles[0].user)
         return redirect('index')
-    
