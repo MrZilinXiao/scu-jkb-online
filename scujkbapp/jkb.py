@@ -95,9 +95,12 @@ class jkbSession:
             'sfcyglq': old['sfcyglq'],  # 是否处于隔离期？
             "sfjxhsjc": old['sfjxhsjc'],  # 是否进行核酸检查 1
             'hsjcjg': old['hsjcjg'],  # 核酸检测结果 2
-            "hsjcrq": "2020-09-11",
-            "hsjcdd": "四川大学华西医院",
-            "szxqmc": "江安校区",
+            # "hsjcrq": "2020-09-11",
+            # "hsjcdd": "四川大学华西医院",
+            # "szxqmc": "江安校区",
+            "hsjcrq": old["hsjcrq"],
+            "hsjcdd": old["hsjcdd"],
+            "szxqmc": old["szxqmc"],
             'sfcxzysx': old['sfcxzysx'],  # 是否出现值得注意的情况？
             'szsqsfybl': old['szsqsfybl'],
             'sfsqhzjkk': old['sfsqhzjkk'],
